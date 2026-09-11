@@ -1,46 +1,166 @@
-import { useMemo, useState } from 'react';
-import { PlusCircle, Trash2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { PageHeader } from '../components/ui';
+﻿import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../constants';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { PlusCircle, Trash2 } from 'lucide-react';
+import { PageHeader } from '../components/ui';
 
-type Item = { product: string; qty: number; rate: number };
+type Item = {
+  product: string;
+  qty: number;
+  purchaseRate: number;
+  saleRate: number;
+};
 
-const START_ITEMS: Item[] = Array.from({ length: 4 }, () => ({
-  product: 'Soyabean Meal',
-  qty: 500,
-  rate: 50,
-}));
+const nutritionFields = [
+  ['DM %', 'DM'],
+  ['CP %', 'CP'],
+  ['ME (Mcal/Kg)', 'ME'],
+  ['GE (Mcal/Kg)', 'GE'],
+  ['EE %', 'EE'],
+  ['CF %', 'CF'],
+  ['TDN %', 'TDN'],
+  ['NDF %', 'NDF'],
+  ['ADF %', 'ADF'],
+  ['Ash %', 'Ash'],
+  ['Ca %', 'Ca'],
+  ['P %', 'P'],
+] as const;
 
 export default function AddInventory() {
-  const [tab, setTab] = useState('Inventory');
-  const [items, setItems] = useState<Item[]>(START_ITEMS);
   const navigate = useNavigate();
+  const nutritionPanel = useRef<HTMLElement>(null);
+  const pdfInput = useRef<HTMLInputElement>(null);
 
-  const total = useMemo(() => items.reduce((sum, i) => sum + i.qty * i.rate, 0), [items]);
-  const weight = useMemo(() => items.reduce((sum, i) => sum + Number(i.qty || 0), 0), [items]);
+  const [tab, setTab] = useState('Batches');
+  const [showNutrition, setShowNutrition] = useState(false);
+  const [referenceOpen, setReferenceOpen] = useState(false);
+  const [reference, setReference] = useState('');
+  const [references, setReferences] = useState<string[]>([]);
+  const [reportName, setReportName] = useState('');
 
-  const update = (index: number, key: keyof Item, value: string) => {
-    setItems((prev) =>
-      prev.map((item, i) =>
-        i === index ? { ...item, [key]: key === 'product' ? value : Number(value) } : item
+  const [items, setItems] = useState<Item[]>(
+    Array.from({ length: 4 }, () => ({
+      product: 'Soyabean Meal',
+      qty: 500,
+      purchaseRate: 50,
+      saleRate: 50,
+    }))
+  );
+
+  const [nutrition, setNutrition] = useState<Record<string, string>>({
+    Name: '',
+    UOM: '',
+  });
+
+  useEffect(() => {
+    if (showNutrition) {
+      nutritionPanel.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  }, [showNutrition]);
+
+  const total = useMemo(
+    () =>
+      items.reduce(
+        (sum, item) => sum + item.qty * item.purchaseRate,
+        0
+      ),
+    [items]
+  );
+
+  const weight = useMemo(
+    () => items.reduce((sum, item) => sum + Number(item.qty || 0), 0),
+    [items]
+  );
+
+  const updateItem = (
+    index: number,
+    key: keyof Item,
+    value: string
+  ) => {
+    setItems((old) =>
+      old.map((item, itemIndex) =>
+        itemIndex === index
+          ? {
+              ...item,
+              [key]:
+                key === 'product'
+                  ? value
+                  : Number(value || 0),
+            }
+          : item
       )
     );
   };
 
-  const addRow = () => setItems((prev) => [...prev, { product: 'Soyabean Meal', qty: 0, rate: 0 }]);
-  const removeRow = (index: number) => setItems((prev) => prev.filter((_, i) => i !== index));
+  const addItemRow = () => {
+    setItems((old) => [
+      ...old,
+      {
+        product: 'New Material',
+        qty: 0,
+        purchaseRate: 0,
+        saleRate: 0,
+      },
+    ]);
+  };
 
-  const save = () => navigate(ROUTES.INVENTORY);
+  const removeItem = (index: number) => {
+    setItems((old) => old.filter((_, itemIndex) => itemIndex !== index));
+  };
+
+  const addReference = () => {
+    const value = reference.trim();
+
+    if (!value) return;
+
+    setReferences((old) => [...old, value]);
+    setReference('');
+  };
+
+  const updateNutrition = (key: string, value: string) => {
+    setNutrition((old) => ({
+      ...old,
+      [key]: value,
+    }));
+  };
+
+  const addNutritionMaterial = () => {
+    const name = nutrition.Name.trim();
+
+    if (!name) {
+      alert('Material name required.');
+      return;
+    }
+
+    setItems((old) => [
+      ...old,
+      {
+        product: name,
+        qty: 0,
+        purchaseRate: 0,
+        saleRate: 0,
+      },
+    ]);
+
+    setShowNutrition(false);
+  };
 
   return (
     <>
       <PageHeader title="ADD INVENTORY" />
 
       <div className="tabs">
-        {['Inventory', 'Batches'].map((t) => (
-          <button key={t} onClick={() => setTab(t)} className={tab === t ? 'tab active' : 'tab'}>
-            {t}
+        {['Inventory', 'Batches'].map((value) => (
+          <button
+            type="button"
+            key={value}
+            className={tab === value ? 'tab active' : 'tab'}
+            onClick={() => setTab(value)}
+          >
+            {value}
           </button>
         ))}
       </div>
@@ -54,27 +174,65 @@ export default function AddInventory() {
             <option>Finished Goods</option>
           </select>
         </label>
+
         <label>
           <span>Select PO</span>
           <select>
             <option>Select PO</option>
             <option>PO#001</option>
+            <option>PO#002</option>
           </select>
         </label>
+
         <label>
           <span>Batch Number</span>
           <input placeholder="Enter Batch Number" />
         </label>
+
         <label>
           <span>Name Of Batch</span>
+
           <div className="inline">
             <input placeholder="Enter Name Of Batch" />
-            <button type="button" className="btn cyan">
+
+            <button
+              type="button"
+              className="btn cyan"
+              onClick={() => setReferenceOpen((old) => !old)}
+            >
               Add References
             </button>
           </div>
         </label>
       </div>
+
+      {referenceOpen && (
+        <div className="reference-panel">
+          <strong>Add References</strong>
+
+          <div className="inline">
+            <input
+              value={reference}
+              onChange={(event) => setReference(event.target.value)}
+              placeholder="Enter reference"
+            />
+
+            <button
+              type="button"
+              className="btn cyan"
+              onClick={addReference}
+            >
+              Add Reference
+            </button>
+          </div>
+
+          {references.map((value, index) => (
+            <div className="reference-item" key={`${value}-${index}`}>
+              {index + 1}. {value}
+            </div>
+          ))}
+        </div>
+      )}
 
       <h3 className="sectiontitle">Add Items</h3>
 
@@ -86,48 +244,83 @@ export default function AddInventory() {
               <th>Product</th>
               <th>QTY</th>
               <th>Purchase Rate</th>
+              <th>Sale Price</th>
               <th>Total</th>
-              <th />
+              <th>Actions</th>
             </tr>
           </thead>
+
           <tbody>
-            {items.map((item, i) => (
-              <tr key={i}>
-                <td>{i + 1}</td>
+            {items.map((item, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
+
                 <td>
                   <input
                     value={item.product}
-                    onChange={(e) => update(i, 'product', e.target.value)}
+                    onChange={(event) =>
+                      updateItem(index, 'product', event.target.value)
+                    }
                   />
                 </td>
+
                 <td>
                   <input
                     type="number"
                     value={item.qty}
-                    onChange={(e) => update(i, 'qty', e.target.value)}
+                    onChange={(event) =>
+                      updateItem(index, 'qty', event.target.value)
+                    }
                   />
                 </td>
+
                 <td>
                   <input
                     type="number"
-                    value={item.rate}
-                    onChange={(e) => update(i, 'rate', e.target.value)}
+                    value={item.purchaseRate}
+                    onChange={(event) =>
+                      updateItem(
+                        index,
+                        'purchaseRate',
+                        event.target.value
+                      )
+                    }
                   />
                 </td>
-                <td>{(item.qty * item.rate).toLocaleString()}</td>
+
                 <td>
-                  <div className="icons">
-                    <button className="danger" onClick={() => removeRow(i)} aria-label="Remove row">
-                      <Trash2 />
-                    </button>
-                  </div>
+                  <input
+                    type="number"
+                    value={item.saleRate}
+                    onChange={(event) =>
+                      updateItem(index, 'saleRate', event.target.value)
+                    }
+                  />
+                </td>
+
+                <td>
+                  {(item.qty * item.purchaseRate).toLocaleString()}
+                </td>
+
+                <td className="table-actions">
+                  <button
+                    type="button"
+                    className="table-action delete"
+                    onClick={() => removeItem(index)}
+                  >
+                    <Trash2 size={15} />
+                  </button>
                 </td>
               </tr>
             ))}
 
             <tr>
-              <td colSpan={6}>
-                <button className="plainadd" onClick={addRow}>
+              <td colSpan={7}>
+                <button
+                  type="button"
+                  className="plainadd"
+                  onClick={addItemRow}
+                >
                   <PlusCircle />
                   Add item row
                 </button>
@@ -137,18 +330,117 @@ export default function AddInventory() {
         </table>
       </div>
 
+      {showNutrition && (
+        <section ref={nutritionPanel} className="nutrition-panel">
+          <div className="nutrition-panel-head">
+            <div>
+              <h2>Add Live Nutrition Table</h2>
+              <p>Add raw product to inventory</p>
+            </div>
+
+            <button
+              type="button"
+              className="nutrition-close"
+              onClick={() => setShowNutrition(false)}
+            >
+              Ãƒâ€”
+            </button>
+          </div>
+
+          <div className="formgrid two">
+            <label>
+              <span>Name</span>
+              <input
+                value={nutrition.Name || ''}
+                onChange={(event) =>
+                  updateNutrition('Name', event.target.value)
+                }
+                placeholder="Soyabean Meal"
+              />
+            </label>
+
+            <label>
+              <span>UOM</span>
+              <select
+                value={nutrition.UOM || ''}
+                onChange={(event) =>
+                  updateNutrition('UOM', event.target.value)
+                }
+              >
+                <option value="">Select UOM</option>
+                <option value="KG">KG</option>
+                <option value="Bag">Bag</option>
+                <option value="Ton">Ton</option>
+              </select>
+            </label>
+          </div>
+
+          <h3 className="sectiontitle">Formula Standard</h3>
+
+          <div className="formgrid nutrition-grid">
+            {nutritionFields.map(([label, key]) => (
+              <label key={key}>
+                <span>{label}</span>
+                <input
+                  value={nutrition[key] || ''}
+                  onChange={(event) =>
+                    updateNutrition(key, event.target.value)
+                  }
+                  placeholder={`Enter ${label}`}
+                />
+              </label>
+            ))}
+          </div>
+
+          <input
+            ref={pdfInput}
+            type="file"
+            accept=".pdf"
+            hidden
+            onChange={(event) =>
+              setReportName(event.target.files?.[0]?.name || '')
+            }
+          />
+
+          <div className="nutrition-actions">
+            <button
+              type="button"
+              className="btn orange"
+              onClick={addNutritionMaterial}
+            >
+              Add Material
+            </button>
+
+            <button
+              type="button"
+              className="btn green"
+              onClick={() => pdfInput.current?.click()}
+            >
+              Add Report PDF
+            </button>
+
+            {reportName && <span>{reportName}</span>}
+          </div>
+        </section>
+      )}
+
       <div className="totals">
         <div>
           <b>Total weight</b>
           <span>{weight}Kg</span>
         </div>
+
         <div>
           <b>Grand Total</b>
-          <span>{total.toLocaleString()}</span>
+          <span>{total.toLocaleString()}PKR</span>
         </div>
       </div>
 
-      <button className="btn orange savebtn" onClick={save}>
+      <button
+        type="button"
+        className="btn orange savebtn"
+        onClick={() => navigate(ROUTES.INVENTORY_ADD_MATERIAL)}
+      >
         Add Material
       </button>
     </>

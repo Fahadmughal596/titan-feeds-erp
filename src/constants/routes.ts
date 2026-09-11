@@ -10,14 +10,17 @@ export const ROUTES = {
   // Inventory
   INVENTORY: '/inventory',
   INVENTORY_ADD: '/inventory/add',
+  INVENTORY_ADD_MATERIAL: '/inventory/add-material',
   INVENTORY_IMPORT: '/inventory/bulk-import',
 
   // Raw material
   RAW_MATERIAL: '/raw-material',
+  RAW_MATERIAL_ADD: '/raw-material/add',
   RAW_MATERIAL_IMPORT: '/raw-material/bulk-import',
 
   // Products
   PRODUCTS: '/products',
+  PRODUCT_DETAILS: '/products/details',
   PRODUCT_ADD: '/products/add',
   BRAND_ADD: '/products/brands/add',
   VARIANT_ADD: '/products/variants/add',
@@ -25,10 +28,14 @@ export const ROUTES = {
   // Formulations
   FORMULATOR: '/formulator',
   FORMULAS: '/formulas',
+  FORMULA_ADD: '/formulas/add',
+  FORMULA_DETAIL: '/formulas/detail',
   BOM: '/bom',
+  BOM_MAKE: '/bom/make',
 
   // General
   INVOICES: '/invoices',
+  INVOICE_ADD: '/invoices/add',
   INVOICE_IMPORT: '/invoices/bulk-import',
   PURCHASE_ORDERS: '/purchase-orders',
   CLIENTS_SUPPLIERS: '/clients-suppliers',
@@ -37,6 +44,7 @@ export const ROUTES = {
 
   // Finance
   EXPENSES: '/expenses',
+  EXPENSE_ADD: '/expenses/add',
   EXPENSE_CATEGORIES: '/expense-categories',
   EXPENSE_ALLOCATIONS: '/expense-allocations',
   FINANCE_ANALYTICS: '/finance-analytics',
@@ -55,6 +63,6 @@ export const LEGACY_REDIRECTS: Array<[string, string]> = [
   ['/bulk/raw-material', ROUTES.RAW_MATERIAL_IMPORT],
   ['/bulk/batch', ROUTES.INVENTORY_IMPORT],
   ['/bulk/invoice', ROUTES.INVOICE_IMPORT],
-  // '/finance' duplicated '/finance-analytics' — one page, one URL now.
+  // '/finance' duplicated '/finance-analytics' ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â one page, one URL now.
   ['/finance', ROUTES.FINANCE_ANALYTICS],
 ];
