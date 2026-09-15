@@ -10,12 +10,12 @@ export const ROUTES = {
   // Inventory
   INVENTORY: '/inventory',
   INVENTORY_ADD: '/inventory/add',
-  INVENTORY_BATCHES: '/inventory/batches',
-  INVENTORY_BATCH_ADD: '/inventory/batches/add',
+  INVENTORY_ADD_MATERIAL: '/inventory/add-material',
   INVENTORY_IMPORT: '/inventory/bulk-import',
 
   // Raw material
   RAW_MATERIAL: '/raw-material',
+  RAW_MATERIAL_ADD: '/raw-material/add',
   RAW_MATERIAL_IMPORT: '/raw-material/bulk-import',
 
   // Products
@@ -63,6 +63,6 @@ export const LEGACY_REDIRECTS: Array<[string, string]> = [
   ['/bulk/raw-material', ROUTES.RAW_MATERIAL_IMPORT],
   ['/bulk/batch', ROUTES.INVENTORY_IMPORT],
   ['/bulk/invoice', ROUTES.INVOICE_IMPORT],
-  // '/finance' duplicated '/finance-analytics' — one page, one URL now.
+  // '/finance' duplicated '/finance-analytics' ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â one page, one URL now.
   ['/finance', ROUTES.FINANCE_ANALYTICS],
 ];
