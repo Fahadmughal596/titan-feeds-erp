@@ -59,7 +59,7 @@ export const LIST_PAGES: ListPageConfig[] = [
   {
     path: ROUTES.RAW_MATERIAL,
     title: 'Raw Material',
-    headers: ['Sr no.', 'Name', 'UOM', 'DM %', 'CP %', 'ME', 'GE', 'EE %', 'CF %', 'TDN %', 'NDF %', 'ADF %', 'Ash %', 'Ca %', 'P %'],
+    headers: ['Sr no.', 'Name', 'UOM', 'DM %', 'CP %', 'ME', 'GE', 'EE %', 'CF %', 'TDN %', 'NDF %'],
     seed: sampleRows.raw,
     keyName: 'titan_raw_v4',
     addLabel: 'Add Raw Material',

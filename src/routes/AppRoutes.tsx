@@ -1,14 +1,14 @@
-import RecordPage from '../pages/RecordPage';
-import InventoryPage from '../pages/InventoryPage';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
 import { BULK_IMPORTS, LIST_PAGES, SIMPLE_FORMS } from './pageConfig';
 import { LEGACY_REDIRECTS, ROUTES } from '../constants';
-import AddInventory from '../pages/AddInventory';
-import AddMaterialNutrition from '../pages/AddMaterialNutrition';
-import AddRawMaterial from '../pages/AddRawMaterial';
+import AddStock from '../pages/AddStock';
+import AddBatch from '../pages/AddBatch';
 import BulkImport from '../pages/BulkImport';
 import ListPage from '../pages/ListPage';
+import Login from '../pages/Login';
+import Profile from '../pages/Profile';
+import SimpleForm from '../pages/SimpleForm';
 import ProductsPage from '../pages/ProductsPage';
 import ProductDetails from '../pages/ProductDetails';
 import AddProduct from '../pages/AddProduct';
@@ -29,12 +29,10 @@ import ExpensesPage from '../pages/ExpensesPage';
 import AddExpense from '../pages/AddExpense';
 import ExpenseCategoriesPage from '../pages/ExpenseCategoriesPage';
 import InventoryDashboard from '../pages/InventoryDashboard';
+import BatchesPage from '../pages/BatchesPage';
 import DashboardPage from '../pages/DashboardPage';
 import ExpenseAllocationsPage from '../pages/ExpenseAllocationsPage';
 import FinanceAnalyticsPage from '../pages/FinanceAnalyticsPage';
-import Login from '../pages/Login';
-import Profile from '../pages/Profile';
-import SimpleForm from '../pages/SimpleForm';
 
 /**
  * The whole URL map of the app.
@@ -50,8 +48,22 @@ export default function AppRoutes() {
 
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<Navigate to={ROUTES.INVENTORY} replace />} />
+        <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
         <Route path={ROUTES.PROFILE} element={<Profile />} />
-        <Route path={ROUTES.INVENTORY_ADD} element={<AddInventory />} />`r`n        <Route path={ROUTES.BOM_MAKE} element={<MakeBOM />} />`r`n        <Route path={ROUTES.BOM} element={<BOMPage />} />`r`n        <Route path={ROUTES.FORMULA_ADD} element={<AddFormula />} />`r`n        <Route path={ROUTES.FORMULA_DETAIL} element={<FormulaDetail />} />`r`n        <Route path={ROUTES.FORMULAS} element={<FormulasPage />} />`r`n        <Route path={ROUTES.FORMULATOR} element={<FormulaHistory />} />
+        <Route path={ROUTES.INVENTORY_ADD} element={<AddStock />} />
+        <Route path={ROUTES.INVENTORY_BATCHES} element={<BatchesPage />} />
+        <Route path={ROUTES.INVENTORY_BATCH_ADD} element={<AddBatch />} />
+        <Route path={ROUTES.PRODUCT_DETAILS} element={<ProductDetails />} />
+        <Route path={ROUTES.PRODUCT_ADD} element={<AddProduct />} />
+        <Route path={ROUTES.BRAND_ADD} element={<AddBrand />} />
+        <Route path={ROUTES.VARIANT_ADD} element={<AddVariant />} />
+        <Route path={ROUTES.PRODUCTS} element={<ProductsPage />} />
+        <Route path={ROUTES.BOM_MAKE} element={<MakeBOM />} />
+        <Route path={ROUTES.BOM} element={<BOMPage />} />
+        <Route path={ROUTES.FORMULA_ADD} element={<AddFormula />} />
+        <Route path={ROUTES.FORMULA_DETAIL} element={<FormulaDetail />} />
+        <Route path={ROUTES.FORMULAS} element={<FormulasPage />} />
+        <Route path={ROUTES.FORMULATOR} element={<FormulaHistory />} />
         <Route path={ROUTES.INVOICES} element={<InvoicesPage />} />
         <Route path={ROUTES.INVOICE_ADD} element={<AddInvoice />} />
         <Route path={ROUTES.PURCHASE_ORDERS} element={<PurchaseOrdersPage />} />
@@ -64,45 +76,12 @@ export default function AppRoutes() {
         <Route path={ROUTES.EXPENSE_ALLOCATIONS} element={<ExpenseAllocationsPage />} />
         <Route path={ROUTES.FINANCE_ANALYTICS} element={<FinanceAnalyticsPage />} />
         <Route path={ROUTES.INVENTORY} element={<InventoryDashboard />} />
-        <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
-        <Route path={ROUTES.PRODUCT_DETAILS} element={<ProductDetails />} />
-        <Route path={ROUTES.PRODUCT_ADD} element={<AddProduct />} />
-        <Route path={ROUTES.BRAND_ADD} element={<AddBrand />} />
-        <Route path={ROUTES.VARIANT_ADD} element={<AddVariant />} />
-        <Route path={ROUTES.INVENTORY_ADD_MATERIAL} element={<AddMaterialNutrition />} />
-        <Route path={ROUTES.RAW_MATERIAL_ADD} element={<AddRawMaterial />} />
 
-        <Route path={ROUTES.PRODUCTS} element={<ProductsPage />} />
-
-        {LIST_PAGES.map(({ path, ...config }) => (
-          <Route key={path} path={path} element={
-              path === ROUTES.INVENTORY
-                ? <InventoryPage />
-                : <ListPage key={path} {...config} />
-            } />
+        {LIST_PAGES.filter(({ path }) => ![ROUTES.DASHBOARD, ROUTES.INVENTORY, ROUTES.PRODUCTS, ROUTES.BOM, ROUTES.FORMULAS, ROUTES.FORMULATOR, ROUTES.INVOICES, ROUTES.PURCHASE_ORDERS, ROUTES.CLIENTS_SUPPLIERS, ROUTES.EXPENSES, ROUTES.EXPENSE_CATEGORIES, ROUTES.EXPENSE_ALLOCATIONS, ROUTES.FINANCE_ANALYTICS].includes(path as any)).map(({ path, ...config }) => (
+          <Route key={path} path={path} element={<ListPage {...config} />} />
         ))}
 
-        {LIST_PAGES
-          .filter(config => config.path !== ROUTES.INVENTORY)
-          .map(config => (
-            <Route
-              key={`${config.path}/add`}
-              path={`${config.path}/add`}
-              element={<RecordPage key={`${config.path}-add`} config={config} mode="add" />}
-            />
-          ))}
-
-        {LIST_PAGES.map(config => (
-          <Route
-            key={`${config.path}/edit`}
-            path={`${config.path}/edit/:rowId`}
-            element={<RecordPage key={`${config.path}-edit`} config={config} mode="edit" />}
-          />
-        ))}
-
-        {SIMPLE_FORMS.filter(form =>
-          !LIST_PAGES.some(config => `${config.path}/add` === form.path)
-        ).map(({ path, ...config }) => (
+        {SIMPLE_FORMS.filter(({ path }) => ![ROUTES.PRODUCT_ADD, ROUTES.BRAND_ADD, ROUTES.VARIANT_ADD, ROUTES.CLIENT_ADD, ROUTES.SUPPLIER_ADD].includes(path as any)).map(({ path, ...config }) => (
           <Route key={path} path={path} element={<SimpleForm {...config} />} />
         ))}
 

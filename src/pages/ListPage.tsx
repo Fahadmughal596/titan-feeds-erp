@@ -1,7 +1,5 @@
-import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import { DataTable, ModalForm, PageHeader, Toolbar } from '../components/ui';
-import { ROUTES } from '../constants';
 
 type Props = {
   title: string;
@@ -12,127 +10,68 @@ type Props = {
   tabs?: string[];
 };
 
-type EditTarget = {
-  values?: Record<string, string>;
-  index?: number;
-};
+type EditTarget = { values?: Record<string, string>; index?: number };
 
-const GENERATED_HEADERS = ['Sr no.', 'Sr no', 'Actions'];
+/** Columns that are generated, not typed by the user. */
+const NON_INPUT_HEADERS = ['Sr no.', 'Sr no', 'Actions'];
 
-function exportCsv(title: string, headers: string[], rows: any[][]) {
-  const escape = (value: unknown) => {
-    const text = String(value ?? '');
-    return `"${text.replace(/"/g, '""')}"`;
-  };
-
-  const csv = [
-    headers.map(escape).join(','),
-    ...rows.map((row) => row.map(escape).join(',')),
-  ].join('\r\n');
-
-  const blob = new Blob(['\uFEFF' + csv], {
-    type: 'text/csv;charset=utf-8;',
-  });
-
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-
-  link.href = url;
-  link.download = `${title.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.csv`;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
-}
-
-export default function ListPage({
-  title,
-  headers,
-  seed,
-  keyName,
-  addLabel = 'Add New',
-  tabs,
-}: Props) {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [search, setSearch] = useState('');
-  const [editing, setEditing] = useState<EditTarget | null>(null);
-  const [activeTab, setActiveTab] = useState(0);
+/**
+ * Generic table screen. Rows live in localStorage under `keyName` so edits
+ * survive a refresh; swapping that for API calls later only touches this file.
+ */
+export default function ListPage({ title, headers, seed, keyName, addLabel = 'Add New', tabs }: Props) {
+  const columnCount = headers.length;
 
   const initial = useMemo(() => {
     try {
       const stored = JSON.parse(localStorage.getItem(keyName) || 'null');
-
-      if (
+      const usable =
         Array.isArray(stored) &&
-        stored.every((row: any) => Array.isArray(row))
-      ) {
-        return stored;
-      }
+        stored.every((row: any) => Array.isArray(row) && row.length === columnCount);
+      if (usable) return stored;
     } catch {
-      // Use seed data
+      // Ignore unreadable storage and fall back to the seed rows.
     }
-
     return seed;
-  }, [keyName, seed]);
+  }, [keyName, columnCount, seed]);
 
   const [rows, setRows] = useState<any[][]>(initial);
+  const [search, setSearch] = useState('');
+  const [editing, setEditing] = useState<EditTarget | null>(null);
+  const [activeTab, setActiveTab] = useState(0);
 
   useEffect(() => {
     localStorage.setItem(keyName, JSON.stringify(rows));
-  }, [keyName, rows]);
+  }, [rows, keyName]);
 
   const visibleRows = rows.filter((row) =>
     row.join(' ').toLowerCase().includes(search.toLowerCase())
   );
-
-  const fields = headers.filter(
-    (header) => !GENERATED_HEADERS.includes(header)
-  );
+  const fields = headers.filter((h) => !NON_INPUT_HEADERS.includes(h));
 
   const startEdit = (visibleIndex: number) => {
     const row = visibleRows[visibleIndex];
     const values: Record<string, string> = {};
-
-    fields.forEach((field) => {
-      const columnIndex = headers.indexOf(field);
-      values[field] = String(row[columnIndex] ?? '');
+    fields.forEach((field, i) => {
+      values[field] = row[i];
     });
-
-    setEditing({
-      values,
-      index: rows.indexOf(row),
-    });
+    setEditing({ values, index: rows.indexOf(row) });
   };
 
   const removeRow = (visibleIndex: number) => {
     const row = visibleRows[visibleIndex];
-    setRows((previous) => previous.filter((item) => item !== row));
+    setRows(rows.filter((r) => r !== row));
   };
 
   const save = (values: Record<string, string>) => {
-    const newRow = headers.map((header, index) => {
-      if (GENERATED_HEADERS.includes(header)) {
-        if (header.toLowerCase().startsWith('sr')) {
-          return editing?.index !== undefined
-            ? rows[editing.index]?.[index] || String(editing.index + 1)
-            : String(rows.length + 1);
-        }
-
-        return '';
-      }
-
-      return values[header] || '';
-    });
-
+    const asRow = fields.map((field) => values[field]);
     if (editing?.index !== undefined) {
       const next = [...rows];
-      next[editing.index] = newRow;
+      next[editing.index] = asRow;
       setRows(next);
     } else {
-      setRows((previous) => [...previous, newRow]);
+      setRows([...rows, asRow]);
     }
-
     setEditing(null);
   };
 
@@ -142,12 +81,11 @@ export default function ListPage({
 
       {tabs && (
         <div className="tabs">
-          {tabs.map((tab, index) => (
+          {tabs.map((tab, i) => (
             <button
-              type="button"
               key={tab}
-              onClick={() => setActiveTab(index)}
-              className={index === activeTab ? 'tab active' : 'tab'}
+              onClick={() => setActiveTab(i)}
+              className={i === activeTab ? 'tab active' : 'tab'}
             >
               {tab}
             </button>
@@ -157,26 +95,12 @@ export default function ListPage({
 
       <Toolbar
         addLabel={addLabel}
-        onExport={() => exportCsv(title, headers, visibleRows)}
-        onAdd={() => {
-          if (location.pathname === ROUTES.INVENTORY) {
-            navigate(ROUTES.INVENTORY_ADD);
-          } else if (location.pathname === ROUTES.RAW_MATERIAL) {
-            navigate(ROUTES.RAW_MATERIAL_ADD);
-          } else {
-            setEditing({});
-          }
-        }}
+        onAdd={() => setEditing({})}
         search={search}
         setSearch={setSearch}
       />
 
-      <DataTable
-        headers={headers}
-        rows={visibleRows}
-        onEdit={startEdit}
-        onDelete={removeRow}
-      />
+      <DataTable headers={headers} rows={visibleRows} onEdit={startEdit} onDelete={removeRow} />
 
       {editing && (
         <ModalForm
