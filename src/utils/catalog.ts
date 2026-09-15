@@ -6,6 +6,8 @@ export type ProductOption = {
   uom?: string;
   valueInKg?: string;
 };
+export type BrandRecord = { name: string; productItem?: string; description?: string };
+export type CatalogueRecord = { brandName: string; products: string; items: string; description?: string };
 
 const parse = (key: string): unknown => {
   try {
@@ -56,6 +58,16 @@ export const readBrands = (): string[] => {
     : [];
   const fromProducts = readProducts().map((product) => product.brand || '').filter(Boolean);
   return Array.from(new Set(['Titan Feeds', ...saved, ...fromProducts]));
+};
+
+export const readBrandRecords = (): BrandRecord[] => {
+  const value = parse('titan_brands');
+  return Array.isArray(value) ? value.map((brand) => typeof brand === 'string' ? { name: brand } : { name: String(brand?.name || ''), productItem: String(brand?.productItem || ''), description: String(brand?.description || '') }).filter((brand) => brand.name) : [];
+};
+
+export const readCatalogueRecords = (): CatalogueRecord[] => {
+  const value = parse('titan_brand_catalogue');
+  return Array.isArray(value) ? value.map((entry) => ({ brandName: String(entry?.brandName || ''), products: String(entry?.products || ''), items: String(entry?.items || ''), description: String(entry?.description || '') })).filter((entry) => entry.brandName) : [];
 };
 
 /** Combines finished products and raw materials without duplicate names. */
