@@ -57,7 +57,7 @@ export default function ProductsPage() {
   const [filterOpen, setFilterOpen] = useState(false);
   const [brand, setBrand] = useState('All');
   const [page, setPage] = useState(1);
-  const [modal, setModal] = useState<'brand' | 'product' | 'variant' | null>(null);
+  const [modal, setModal] = useState<'brand' | 'product' | 'variant' | 'catalogue' | null>(null);
   const brands = useMemo(() => ['All', ...Array.from(new Set(rows.map((r) => r.brand)))], [rows]);
   const visible = rows.filter((row) => {
     const matchesQuery = `${row.brand} ${row.product} ${row.variant}`.toLowerCase().includes(query.toLowerCase());
