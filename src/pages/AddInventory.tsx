@@ -1,4 +1,4 @@
-﻿import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../constants';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { PlusCircle, Trash2 } from 'lucide-react';
@@ -148,6 +148,56 @@ export default function AddInventory() {
     setShowNutrition(false);
   };
 
+  /* Inventory tab content */
+  if (tab === 'Inventory') {
+    return (
+      <>
+        <PageHeader title="ADD INVENTORY" />
+
+        <div className="tabs">
+          <button
+            type="button"
+            className="tab active"
+            onClick={() => setTab('Inventory')}
+          >
+            Inventory
+          </button>
+          <button
+            type="button"
+            className="tab"
+            onClick={() => setTab('Batches')}
+          >
+            Batches
+          </button>
+        </div>
+
+        <h3 className="sectiontitle">Inventory</h3>
+
+        <div className="tablewrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Sr no.</th>
+                <th>Material</th>
+                <th>UOM</th>
+                <th>Available QTY</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>Soyabean Meal</td>
+                <td>KG</td>
+                <td>100Kg</td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </>
+    );
+  }
   return (
     <>
       <PageHeader title="ADD INVENTORY" />
