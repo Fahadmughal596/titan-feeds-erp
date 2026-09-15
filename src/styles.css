@@ -567,3 +567,30 @@ header {
 .headright {
   transform: translateY(3px);
 }
+
+/* Form action spacing */
+.partner-form-card > .btn,
+.product-form > .btn,
+.standalone > .btn,
+.formgrid + .btn {
+  margin-top: 14px;
+}
+
+/* Universal form action spacing */
+.partner-form-card > .btn,
+.product-form > .btn,
+.standalone > .btn,
+.formgrid + .btn,
+.formsubmit,
+.savebtn {
+  margin-top: 16px;
+}
+
+.partner-form-card,
+.product-form {
+  padding-bottom: 24px;
+}
+
+.formgrid label.full {
+  margin-bottom: 2px;
+}
