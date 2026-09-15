@@ -485,3 +485,19 @@ footer{margin-top:auto}
 .product-modal .modalactions .gray{display:none}
 @media(max-width:600px){.product-modal .modal-two{grid-template-columns:1fr}.product-modal{max-height:92vh;overflow:auto}}
 
+
+/* Product add dialogs — Figma-style cards shown over the Products page. */
+.product-modal{width:min(680px,95vw);border-radius:14px;padding:0;overflow:hidden}
+.product-modal .modalhead{margin:0;padding:18px 22px 14px;border-bottom:1px solid #e7e7e7;background:#fff}
+.product-modal .modalhead h2{font-size:18px;text-transform:none;margin:0;color:#f58220}
+.product-modal .modalhead p{margin:3px 0 0;color:#777;font-size:10px}
+.product-modal>label,.product-modal>.modal-two,.product-modal>.modalactions{margin-left:22px;margin-right:22px}
+.product-modal>label{display:flex;flex-direction:column;gap:6px;font-size:11px;font-weight:600;margin-top:14px}
+.product-modal input,.product-modal select,.product-modal textarea{height:36px;border:1px solid #aeb3b7;border-radius:3px;padding:0 10px;background:#fff;font:inherit;font-weight:400}
+.product-modal textarea{height:78px;padding-top:9px;resize:vertical}
+.product-modal .modal-two{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;margin-top:4px}
+.product-modal .modal-two label{display:flex;flex-direction:column;gap:6px;font-size:11px;font-weight:600}
+.product-modal .modalactions{justify-content:flex-start;margin-top:18px;padding:0 0 20px}
+.product-modal .modalactions .gray{display:none}
+@media(max-width:600px){.product-modal .modal-two{grid-template-columns:1fr}.product-modal{max-height:92vh;overflow:auto}}
+
