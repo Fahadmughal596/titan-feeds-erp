@@ -520,3 +520,39 @@ footer{margin-top:auto}
 .brand-catalogue{margin-top:30px}.brand-catalogue-head{display:flex;align-items:baseline;gap:12px;margin:0 0 10px}.brand-catalogue-head>div:first-child{display:flex;align-items:baseline;gap:12px}.brand-catalogue-head h2{margin:0;color:#f58220;font-size:18px;text-transform:uppercase}.brand-catalogue-head span{color:#777;font-size:11px}.catalogue-add{margin-left:auto;white-space:nowrap}.catalogue-table{border:1px solid #e1e3e5;border-radius:3px}.catalogue-table table{min-width:620px;table-layout:auto}.catalogue-table th,.catalogue-table td{padding:13px 14px}.catalogue-table tbody tr:nth-child(even){background:#fafafa}
 @media(max-width:600px){.product-modal .modal-two{grid-template-columns:1fr}.product-modal{max-height:92vh;overflow:auto}}
 
+
+
+/* Header spacing refinement */
+header {
+  padding: 7px 28px;
+}
+
+.headright {
+  gap: 14px;
+}
+
+.bell {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+
+.profile {
+  min-height: 42px;
+  padding: 0 16px;
+  gap: 10px;
+}
+
+@media (max-width: 540px) {
+  .bell {
+    width: 40px;
+    height: 40px;
+  }
+
+  .profile {
+    min-height: 40px;
+    padding: 0 10px;
+  }
+}
