@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '../components/ui';
 import { ROUTES } from '../constants';
+import ProductModal from './ProductModal';
 
 export type ProductRow = {
   brand: string;
@@ -52,11 +53,21 @@ export default function ProductsPage() {
   const [filterOpen, setFilterOpen] = useState(false);
   const [brand, setBrand] = useState('All');
   const [page, setPage] = useState(1);
+  const [modal, setModal] = useState<'brand' | 'product' | 'variant' | null>(null);
   const brands = useMemo(() => ['All', ...Array.from(new Set(rows.map((r) => r.brand)))], [rows]);
   const visible = rows.filter((row) => {
     const matchesQuery = `${row.brand} ${row.product} ${row.variant}`.toLowerCase().includes(query.toLowerCase());
     return matchesQuery && (brand === 'All' || row.brand === brand);
   });
+  const catalogue = useMemo(() => {
+    const grouped = new Map<string, { products: Set<string>; items: number; variants: Set<string> }>();
+    rows.forEach((row) => {
+      const current = grouped.get(row.brand) || { products: new Set<string>(), items: 0, variants: new Set<string>() };
+      current.products.add(row.product); current.items += 1; if (row.variant) current.variants.add(row.variant);
+      grouped.set(row.brand, current);
+    });
+    return Array.from(grouped, ([name, value]) => ({ name, products: Array.from(value.products).join(', '), items: value.items, variants: value.variants.size }));
+  }, [rows]);
 
   return (
     <>
@@ -66,9 +77,9 @@ export default function ProductsPage() {
         <button className="btn orange" onClick={() => setFilterOpen((v) => !v)}><Filter />Filter</button>
         <label className="search"><Search /><input value={query} onChange={(e) => { setQuery(e.target.value); setPage(1); }} placeholder="Search By Name" /></label>
         <div className="grow" />
-        <button className="btn blue" onClick={() => navigate(ROUTES.BRAND_ADD)}><Plus />Add Brand</button>
-        <button className="btn green" onClick={() => navigate(ROUTES.PRODUCT_ADD)}><Plus />Add Product</button>
-        <button className="btn cyan" onClick={() => navigate(ROUTES.VARIANT_ADD)}><Plus />Add Variant</button>
+        <button className="btn blue" onClick={() => setModal('brand')}><Plus />Add Brand</button>
+        <button className="btn green" onClick={() => setModal('product')}><Plus />Add Product</button>
+        <button className="btn cyan" onClick={() => setModal('variant')}><Plus />Add Variant</button>
       </div>
       {filterOpen && <div className="product-filter"><label>Brand <select value={brand} onChange={(e) => setBrand(e.target.value)}>{brands.map((b) => <option key={b}>{b}</option>)}</select></label></div>}
       <div className="tablewrap products-table">
@@ -76,17 +87,22 @@ export default function ProductsPage() {
           <thead><tr>{['Brand', 'Product', 'Variant', 'Item Code', 'UOM', 'Value In KG', 'Description', 'Actions'].map((h) => <th key={h}>{h}</th>)}</tr></thead>
           <tbody>
             {visible.map((row, i) => <tr key={`${row.itemCode}-${i}`}>
-              <td>{row.brand}</td><td><button className="product-link" onClick={() => navigate(ROUTES.PRODUCT_DETAILS)}>{row.product}</button></td><td>{row.variant}</td><td>{row.itemCode}</td><td>{row.uom}</td><td>{row.valueInKg}</td><td>{row.description}</td>
+              <td>{row.brand}</td><td>{row.product}</td><td>{row.variant}</td><td>{row.itemCode}</td><td>{row.uom}</td><td>{row.valueInKg}</td><td>{row.description}</td>
               <td><button className="icon-button" aria-label="Open product details" onClick={() => navigate(ROUTES.PRODUCT_DETAILS)}><MoreVertical /></button></td>
             </tr>)}
             {!visible.length && <tr><td colSpan={8} className="empty-cell">No product records found.</td></tr>}
           </tbody>
         </table>
       </div>
+      <section className="brand-catalogue">
+        <div className="brand-catalogue-head"><h2>Brand Catalogue</h2><span>Products and item summary by brand</span></div>
+        <div className="tablewrap catalogue-table"><table><thead><tr><th>Brand Name</th><th>Brand Products</th><th>Items</th><th>Variants</th></tr></thead><tbody>{catalogue.map((entry) => <tr key={entry.name}><td>{entry.name}</td><td>{entry.products || '-'}</td><td>{entry.items}</td><td>{entry.variants}</td></tr>)}{!catalogue.length && <tr><td colSpan={4} className="empty-cell">No brands found.</td></tr>}</tbody></table></div>
+      </section>
       <div className="products-pagination">
         <span>Page <select value={page} onChange={(e) => setPage(Number(e.target.value))}>{Array.from({ length: 10 }, (_, i) => <option key={i + 1}>{i + 1}</option>)}</select> of 10</span>
-        <div className="page-controls"><button onClick={() => setPage(1)} aria-label="First page">Ã‚&laquo;</button><button onClick={() => setPage(Math.max(1, page - 1))} aria-label="Previous page">Ã¢â‚¬Â¹</button>{[1, 2, 3].map((p) => <button className={page === p ? 'current' : ''} key={p} onClick={() => setPage(p)}>{p}</button>)}<span>Ã¢â‚¬Â¦</span><button className={page === 10 ? 'current' : ''} onClick={() => setPage(10)}>10</button><button onClick={() => setPage(Math.min(10, page + 1))} aria-label="Next page">Ã¢â‚¬Âº</button><button onClick={() => setPage(10)} aria-label="Last page">Ã‚&raquo;</button></div>
+        <div className="page-controls"><button onClick={() => setPage(1)} aria-label="First page">«</button><button onClick={() => setPage(Math.max(1, page - 1))} aria-label="Previous page">‹</button>{[1, 2, 3].map((p) => <button className={page === p ? 'current' : ''} key={p} onClick={() => setPage(p)}>{p}</button>)}<span>…</span><button className={page === 10 ? 'current' : ''} onClick={() => setPage(10)}>10</button><button onClick={() => setPage(Math.min(10, page + 1))} aria-label="Next page">›</button><button onClick={() => setPage(10)} aria-label="Last page">»</button></div>
       </div>
+      {modal && <ProductModal kind={modal} onClose={() => setModal(null)} onSaved={() => { setModal(null); window.location.reload(); }} />}
     </>
   );
 }
