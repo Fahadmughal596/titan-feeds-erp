@@ -41,7 +41,12 @@ export const readRawMaterials = (): ProductOption[] => {
   if (!Array.isArray(value)) return [];
   return value
     .map((row): ProductOption | null => {
-      if (Array.isArray(row)) return { name: String(row[1] || ''), uom: String(row[2] || '') };
+      if (Array.isArray(row)) {
+        // Current raw-material rows include Sr no, Brand, Product, UOM;
+        // older rows used Sr no, Name, UOM. Support both for saved data.
+        const modern = row.length >= 16;
+        return { name: String(row[modern ? 2 : 1] || ''), brand: String(row[modern ? 1 : ''] || ''), uom: String(row[modern ? 3 : 2] || '') };
+      }
       if (row && typeof row === 'object') {
         const item = row as Record<string, unknown>;
         return { name: String(item.name || item.material || ''), uom: String(item.uom || item.UOM || '') };

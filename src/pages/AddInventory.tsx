@@ -1,14 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../constants';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { PlusCircle, Trash2 } from 'lucide-react';
+import { PlusCircle, Trash2, Upload } from 'lucide-react';
 import { PageHeader } from '../components/ui';
 
 type Item = {
   product: string;
   qty: number;
   purchaseRate: number;
-  saleRate: number;
 };
 
 const nutritionFields = [
@@ -43,7 +42,6 @@ export default function AddInventory() {
       product: 'Soyabean Meal',
       qty: 500,
       purchaseRate: 50,
-      saleRate: 50,
     }))
   );
 
@@ -102,7 +100,6 @@ export default function AddInventory() {
         product: 'New Material',
         qty: 0,
         purchaseRate: 0,
-        saleRate: 0,
       },
     ]);
   };
@@ -141,7 +138,6 @@ export default function AddInventory() {
         product: name,
         qty: 0,
         purchaseRate: 0,
-        saleRate: 0,
       },
     ]);
 
@@ -214,6 +210,8 @@ export default function AddInventory() {
           </button>
         ))}
       </div>
+
+      <div className="toolbar inventory-add-toolbar"><div className="grow" /><button type="button" className="btn gray" onClick={() => navigate(ROUTES.INVENTORY_IMPORT)}><Upload />Import File</button></div>
 
       <div className="formgrid two">
         <label>
@@ -294,7 +292,6 @@ export default function AddInventory() {
               <th>Product</th>
               <th>QTY</th>
               <th>Purchase Rate</th>
-              <th>Sale Price</th>
               <th>Total</th>
               <th>Actions</th>
             </tr>
@@ -339,16 +336,6 @@ export default function AddInventory() {
                 </td>
 
                 <td>
-                  <input
-                    type="number"
-                    value={item.saleRate}
-                    onChange={(event) =>
-                      updateItem(index, 'saleRate', event.target.value)
-                    }
-                  />
-                </td>
-
-                <td>
                   {(item.qty * item.purchaseRate).toLocaleString()}
                 </td>
 
@@ -365,7 +352,7 @@ export default function AddInventory() {
             ))}
 
             <tr>
-              <td colSpan={7}>
+              <td colSpan={6}>
                 <button
                   type="button"
                   className="plainadd"

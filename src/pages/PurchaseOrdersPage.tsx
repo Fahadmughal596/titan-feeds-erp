@@ -1,6 +1,8 @@
-import { Download, Filter, MoreVertical, Search } from 'lucide-react';
+import { Download, Filter, MoreVertical, Search, Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '../components/ui';
+import { ROUTES } from '../constants';
 import { exportCsv } from '../utils/exportCsv';
 
 type PurchaseOrder = { sr: string; number: string; date: string; vendor: string; supplyDate: string; amount: string; terms: string; status: string };
@@ -15,6 +17,7 @@ function readOrders(): PurchaseOrder[] {
 }
 
 export default function PurchaseOrdersPage() {
+  const navigate = useNavigate();
   const [rows] = useState<PurchaseOrder[]>(readOrders);
   const [query, setQuery] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
@@ -27,7 +30,7 @@ export default function PurchaseOrdersPage() {
       <button className="btn green" onClick={() => exportCsv('titan-purchase-orders.csv', ['Sr no', 'PO Number', 'Date', 'Vendor Name', 'Supply date', 'Amount', 'Terms', 'Status'], csvRows)}><Download />Export</button>
       <button className="btn orange" onClick={() => setFilterOpen((open) => !open)}><Filter />Filter</button>
       <label className="search"><Search /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search by Invoice #" /></label>
-      <div className="grow" />
+      <div className="grow" /><button className="btn blue" onClick={() => navigate(`${ROUTES.PURCHASE_ORDERS}/add`)}><Plus />Add Purchase Order</button>
     </div>
     {filterOpen && <div className="purchase-filters"><label>Search by Date<input placeholder="Select date" /></label><label>Search by Status<select value={status} onChange={(e) => setStatus(e.target.value)}><option value="">All status</option><option>Paid</option><option>Unpaid</option></select></label></div>}
     <div className="tablewrap purchase-table"><table><thead><tr>{['Sr no', 'PO Number', 'Date', 'Vendor Name', 'Supply date', 'Amount', 'Terms', 'Status', 'Actions'].map((h) => <th key={h}>{h}</th>)}</tr></thead><tbody>{visible.map((row, i) => <tr key={`${row.number}-${i}`}><td>{row.sr}</td><td>{row.number}</td><td>{row.date}</td><td>{row.vendor}</td><td>{row.supplyDate}</td><td>{row.amount}</td><td><span className={`term ${row.terms.toLowerCase()}`}>{row.terms}</span></td><td><span className={`invoice-status ${row.status.toLowerCase()}`}>{row.status}</span></td><td><button className="icon-button" aria-label="Purchase order actions"><MoreVertical /></button></td></tr>)}</tbody></table></div>
