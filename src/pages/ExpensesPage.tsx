@@ -7,10 +7,11 @@ import { exportCsv } from '../utils/exportCsv';
 
 type Expense = { sr: string; category: string; subCategory: string; date: string; description: string; amount: string };
 const SEED: Expense[] = Array.from({ length: 8 }, (_, i) => ({ sr: String(i + 1), category: 'Rent', subCategory: 'Factory Rent', date: '12-June-2026', description: 'Factory rent June', amount: '10,000PKR' }));
+const readExpenses = (): Expense[] => { try { const value = JSON.parse(localStorage.getItem('titan_expenses_v1') || '[]'); return Array.isArray(value) && value.length ? value.map((row: unknown, i: number) => { const item = (row || {}) as Record<string, unknown>; return { sr: String(item.sr || i + 1), category: String(item.category || ''), subCategory: String(item.subCategory || ''), date: String(item.date || ''), description: String(item.description || ''), amount: String(item.amount || '') }; }).filter((row) => row.category) : SEED; } catch { return SEED; } };
 
 export default function ExpensesPage() {
   const navigate = useNavigate();
-  const [rows] = useState<Expense[]>(SEED);
+  const [rows] = useState<Expense[]>(readExpenses);
   const [category, setCategory] = useState('');
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
