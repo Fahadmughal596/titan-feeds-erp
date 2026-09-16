@@ -9,6 +9,7 @@ export const ROUTES = {
 
   // Inventory
   INVENTORY: '/inventory',
+  INVENTORY_BATCHES: '/inventory/batches',
   INVENTORY_ADD: '/inventory/add',
   INVENTORY_ADD_MATERIAL: '/inventory/add-material',
   INVENTORY_IMPORT: '/inventory/bulk-import',

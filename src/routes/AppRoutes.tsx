@@ -51,7 +51,13 @@ export default function AppRoutes() {
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<Navigate to={ROUTES.INVENTORY} replace />} />
         <Route path={ROUTES.PROFILE} element={<Profile />} />
-        <Route path={ROUTES.INVENTORY_ADD} element={<AddInventory />} />`r`n        <Route path={ROUTES.BOM_MAKE} element={<MakeBOM />} />`r`n        <Route path={ROUTES.BOM} element={<BOMPage />} />`r`n        <Route path={ROUTES.FORMULA_ADD} element={<AddFormula />} />`r`n        <Route path={ROUTES.FORMULA_DETAIL} element={<FormulaDetail />} />`r`n        <Route path={ROUTES.FORMULAS} element={<FormulasPage />} />`r`n        <Route path={ROUTES.FORMULATOR} element={<FormulaHistory />} />
+        <Route path={ROUTES.INVENTORY_ADD} element={<AddInventory />} />
+        <Route path={ROUTES.BOM_MAKE} element={<MakeBOM />} />
+        <Route path={ROUTES.BOM} element={<BOMPage />} />
+        <Route path={ROUTES.FORMULA_ADD} element={<AddFormula />} />
+        <Route path={ROUTES.FORMULA_DETAIL} element={<FormulaDetail />} />
+        <Route path={ROUTES.FORMULAS} element={<FormulasPage />} />
+        <Route path={ROUTES.FORMULATOR} element={<FormulaHistory />} />
         <Route path={ROUTES.INVOICES} element={<InvoicesPage />} />
         <Route path={ROUTES.INVOICE_ADD} element={<AddInvoice />} />
         <Route path={ROUTES.PURCHASE_ORDERS} element={<PurchaseOrdersPage />} />
@@ -64,6 +70,7 @@ export default function AppRoutes() {
         <Route path={ROUTES.EXPENSE_ALLOCATIONS} element={<ExpenseAllocationsPage />} />
         <Route path={ROUTES.FINANCE_ANALYTICS} element={<FinanceAnalyticsPage />} />
         <Route path={ROUTES.INVENTORY} element={<InventoryDashboard />} />
+        <Route path={ROUTES.INVENTORY_BATCHES} element={<InventoryDashboard />} />
         <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
         <Route path={ROUTES.PRODUCT_DETAILS} element={<ProductDetails />} />
         <Route path={ROUTES.PRODUCT_ADD} element={<AddProduct />} />
