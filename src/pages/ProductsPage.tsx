@@ -38,8 +38,8 @@ const readRows = (): ProductRow[] => {
 };
 
 const exportRows = (rows: ProductRow[]) => {
-  const head = ['Brand', 'Product', 'Variant', 'Item Code', 'UOM', 'Value In KG', 'Description'];
-  const csv = [head, ...rows.map((r) => [r.brand, r.product, r.variant, r.itemCode, r.uom, r.valueInKg, r.description])]
+  const head = ['Item Code', 'Brand', 'Product', 'Variant', 'UOM', 'Value In KG', 'Description'];
+  const csv = [head, ...rows.map((r) => [r.itemCode, r.brand, r.product, r.variant, r.uom, r.valueInKg, r.description])]
     .map((line) => line.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(','))
     .join('\n');
   const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
@@ -95,10 +95,10 @@ export default function ProductsPage() {
       {filterOpen && <div className="product-filter"><label>Brand <select value={brand} onChange={(e) => setBrand(e.target.value)}>{brands.map((b) => <option key={b}>{b}</option>)}</select></label></div>}
       <div className="tablewrap products-table">
         <table>
-          <thead><tr>{['Brand', 'Product', 'Variant', 'Item Code', 'UOM', 'Value In KG', 'Description', 'Actions'].map((h) => <th key={h}>{h}</th>)}</tr></thead>
+          <thead><tr>{['Item Code', 'Brand', 'Product', 'Variant', 'UOM', 'Value In KG', 'Description', 'Actions'].map((h) => <th key={h}>{h}</th>)}</tr></thead>
           <tbody>
             {visible.map((row, i) => <tr key={`${row.itemCode}-${i}`}>
-              <td>{row.brand}</td><td>{row.product}</td><td>{row.variant}</td><td>{row.itemCode}</td><td>{row.uom}</td><td>{row.valueInKg}</td><td>{row.description}</td>
+              <td>{row.itemCode}</td><td>{row.brand}</td><td>{row.product}</td><td>{row.variant}</td><td>{row.uom}</td><td>{row.valueInKg}</td><td>{row.description}</td>
               <td><button className="icon-button" aria-label="Open product details" onClick={() => navigate(ROUTES.PRODUCT_DETAILS)}><MoreVertical /></button></td>
             </tr>)}
             {!visible.length && <tr><td colSpan={8} className="empty-cell">No product records found.</td></tr>}

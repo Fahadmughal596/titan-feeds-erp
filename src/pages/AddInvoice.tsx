@@ -39,7 +39,9 @@ export default function AddInvoice() {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem('last_invoice', JSON.stringify({ ...values, items }));
+    const invoice = { ...values, items, client: values.clientName || '', number: values.invoiceNumber || '', date: values.date || '', terms: values.terms || '', total: String(netTotal), paid: '0', unpaid: String(netTotal), status: 'Unpaid' };
+    localStorage.setItem('last_invoice', JSON.stringify(invoice));
+    try { const current = JSON.parse(localStorage.getItem('titan_invoices_v1') || '[]'); localStorage.setItem('titan_invoices_v1', JSON.stringify([...(Array.isArray(current) ? current : []), invoice])); } catch { localStorage.setItem('titan_invoices_v1', JSON.stringify([invoice])); }
     setSaved(true);
     window.setTimeout(() => navigate(ROUTES.INVOICES), 450);
   };

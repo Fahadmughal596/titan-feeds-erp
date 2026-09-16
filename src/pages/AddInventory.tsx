@@ -3,6 +3,7 @@ import { ROUTES } from '../constants';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { PlusCircle, Trash2, Upload } from 'lucide-react';
 import { PageHeader } from '../components/ui';
+import { readFeedChoices, readRawMaterials } from '../utils/catalog';
 
 type Item = {
   product: string;
@@ -36,6 +37,14 @@ export default function AddInventory() {
   const [reference, setReference] = useState('');
   const [references, setReferences] = useState<string[]>([]);
   const [reportName, setReportName] = useState('');
+  const productChoices = useMemo(() => {
+    const choices = readFeedChoices();
+    return choices.length ? choices : [{ name: 'Soyabean Meal' }];
+  }, []);
+  const materialChoices = useMemo(() => {
+    const choices = readRawMaterials();
+    return choices.length ? choices : productChoices;
+  }, [productChoices]);
 
   const [items, setItems] = useState<Item[]>(
     Array.from({ length: 4 }, () => ({
@@ -303,12 +312,13 @@ export default function AddInventory() {
                 <td>{index + 1}</td>
 
                 <td>
-                  <input
+                  <select
                     value={item.product}
-                    onChange={(event) =>
-                      updateItem(index, 'product', event.target.value)
-                    }
-                  />
+                    onChange={(event) => updateItem(index, 'product', event.target.value)}
+                  >
+                    <option value="">Select Product</option>
+                    {productChoices.map((choice) => <option key={`${choice.brand || ''}-${choice.name}-${choice.variant || ''}`} value={choice.name}>{choice.name}{choice.variant ? ` ${choice.variant}` : ''}</option>)}
+                  </select>
                 </td>
 
                 <td>

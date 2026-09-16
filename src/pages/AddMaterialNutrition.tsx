@@ -41,18 +41,13 @@ export default function AddMaterialNutrition() {
 
     const name = values.Name.trim();
 
+    // Raw-material table uses the V01 order:
+    // Sr no → Brand → Product → UOM → nutrition fields.
     const rawRow = [
-      String(rawRows.length + 1),
-      name,
-      values.UOM || '',
-      values.DM || '',
-      values.CP || '',
-      values.ME || '',
-      values.GE || '',
-      values.EE || '',
-      values.CF || '',
-      values.TDN || '',
-      values.NDF || '',
+      String(rawRows.length + 1), '', name, values.UOM || '', values.DM || '',
+      values.CP || '', values.ME || '', values.GE || '', values.EE || '',
+      values.CF || '', values.TDN || '', values.NDF || '', values.ADF || '',
+      values.Ash || '', values.Ca || '', values.P || '',
     ];
 
     const inventoryRow = [
