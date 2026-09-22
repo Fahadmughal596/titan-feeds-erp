@@ -5,6 +5,7 @@ import ProtectedRoute from './ProtectedRoute';
 import { BULK_IMPORTS, LIST_PAGES, SIMPLE_FORMS } from './pageConfig';
 import { LEGACY_REDIRECTS, ROUTES } from '../constants';
 import AddInventory from '../pages/AddInventory';
+import AddBatch from '../pages/AddBatch';
 import AddMaterialNutrition from '../pages/AddMaterialNutrition';
 import AddRawMaterial from '../pages/AddRawMaterial';
 import BulkImport from '../pages/BulkImport';
@@ -23,8 +24,10 @@ import FormulaDetail from '../pages/FormulaDetail';
 import InvoicesPage from '../pages/InvoicesPage';
 import AddInvoice from '../pages/AddInvoice';
 import PurchaseOrdersPage from '../pages/PurchaseOrdersPage';
+import AddPurchaseOrder from '../pages/AddPurchaseOrder';
 import ClientsSuppliersPage from '../pages/ClientsSuppliersPage';
 import PartnerForm from '../pages/PartnerForm';
+import PartnerLedger from '../pages/PartnerLedger';
 import ExpensesPage from '../pages/ExpensesPage';
 import AddExpense from '../pages/AddExpense';
 import ExpenseCategoriesPage from '../pages/ExpenseCategoriesPage';
@@ -32,6 +35,7 @@ import InventoryDashboard from '../pages/InventoryDashboard';
 import DashboardPage from '../pages/DashboardPage';
 import ExpenseAllocationsPage from '../pages/ExpenseAllocationsPage';
 import FinanceAnalyticsPage from '../pages/FinanceAnalyticsPage';
+import AccountsPage from '../pages/AccountsPage';
 import Login from '../pages/Login';
 import Profile from '../pages/Profile';
 import SimpleForm from '../pages/SimpleForm';
@@ -52,6 +56,7 @@ export default function AppRoutes() {
         <Route path="/" element={<Navigate to={ROUTES.INVENTORY} replace />} />
         <Route path={ROUTES.PROFILE} element={<Profile />} />
         <Route path={ROUTES.INVENTORY_ADD} element={<AddInventory />} />
+        <Route path={ROUTES.INVENTORY_BATCH_ADD} element={<AddBatch />} />
         <Route path={ROUTES.BOM_MAKE} element={<MakeBOM />} />
         <Route path={ROUTES.BOM} element={<BOMPage />} />
         <Route path={ROUTES.FORMULA_ADD} element={<AddFormula />} />
@@ -61,14 +66,20 @@ export default function AppRoutes() {
         <Route path={ROUTES.INVOICES} element={<InvoicesPage />} />
         <Route path={ROUTES.INVOICE_ADD} element={<AddInvoice />} />
         <Route path={ROUTES.PURCHASE_ORDERS} element={<PurchaseOrdersPage />} />
+        <Route path={ROUTES.PURCHASE_ORDER_ADD} element={<AddPurchaseOrder />} />
         <Route path={ROUTES.CLIENTS_SUPPLIERS} element={<ClientsSuppliersPage />} />
         <Route path={ROUTES.CLIENT_ADD} element={<PartnerForm kind="client" />} />
         <Route path={ROUTES.SUPPLIER_ADD} element={<PartnerForm kind="supplier" />} />
+        <Route path={ROUTES.CLIENT_LEDGER} element={<PartnerLedger kind="client" />} />
+        <Route path={ROUTES.SUPPLIER_LEDGER} element={<PartnerLedger kind="supplier" />} />
         <Route path={ROUTES.EXPENSES} element={<ExpensesPage />} />
         <Route path={ROUTES.EXPENSE_ADD} element={<AddExpense />} />
         <Route path={ROUTES.EXPENSE_CATEGORIES} element={<ExpenseCategoriesPage />} />
         <Route path={ROUTES.EXPENSE_ALLOCATIONS} element={<ExpenseAllocationsPage />} />
         <Route path={ROUTES.FINANCE_ANALYTICS} element={<FinanceAnalyticsPage />} />
+        <Route path={ROUTES.ACCOUNTS} element={<AccountsPage />} />
+        <Route path={ROUTES.BANKS} element={<Navigate to={`${ROUTES.ACCOUNTS}?tab=banks`} replace />} />
+        <Route path={ROUTES.PAYABLES} element={<Navigate to={`${ROUTES.ACCOUNTS}?tab=payables`} replace />} />
         <Route path={ROUTES.INVENTORY} element={<InventoryDashboard />} />
         <Route path={ROUTES.INVENTORY_BATCHES} element={<InventoryDashboard />} />
         <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />

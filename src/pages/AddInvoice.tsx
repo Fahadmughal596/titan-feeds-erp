@@ -34,12 +34,18 @@ export default function AddInvoice() {
   const updateItem = (index: number, field: keyof Item, value: string) => setItems((current) => current.map((item, i) => i === index ? { ...item, [field]: value } : item));
   const chooseCode = (index: number, code: string) => { const match = products.find((product) => product.itemCode === code); setItems((current) => current.map((item, i) => i === index ? { ...item, code, product: match?.name || item.product, price: item.price || (match?.itemCode === '33' ? '4500' : match?.itemCode === '3320' ? '5200' : '') } : item)); };
   const chooseProduct = (index: number, productName: string) => { const match = products.find((product) => product.name === productName); setItems((current) => current.map((item, i) => i === index ? { ...item, product: productName, code: match?.itemCode || item.code, price: item.price || (match?.itemCode === '33' ? '4500' : match?.itemCode === '3320' ? '5200' : '') } : item)); };
-  const itemTotal = (item: Item) => Math.max(0, Number(item.qty || 0) * Number(item.price || 0) - Number(item.discount || 0));
+  const itemGross = (item: Item) => Math.max(0, Number(item.qty || 0) * Number(item.price || 0));
+  const itemTotal = (item: Item) => Math.max(0, itemGross(item) - Number(item.discount || 0));
+  const grossTotal = items.reduce((sum, item) => sum + itemGross(item), 0);
+  const discountTotal = items.reduce((sum, item) => sum + Number(item.discount || 0), 0);
   const netTotal = items.reduce((sum, item) => sum + itemTotal(item), 0);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    const invoice = { ...values, items, client: values.clientName || '', number: values.invoiceNumber || '', date: values.date || '', terms: values.terms || '', total: String(netTotal), paid: '0', unpaid: String(netTotal), status: 'Unpaid' };
+    const status = values.paymentStatus === 'Paid' ? 'Paid' : 'Unpaid';
+    const advancePayment = Math.min(netTotal, Math.max(0, Number(values.advancePayment || 0)));
+    const paid = status === 'Paid' ? netTotal : advancePayment;
+    const invoice = { ...values, items, client: values.clientName || '', number: values.invoiceNumber || '', date: values.date || '', terms: values.terms || '', total: String(netTotal), paid: String(paid), unpaid: String(Math.max(0, netTotal - paid)), advancePayment: String(advancePayment), discount: String(discountTotal), status };
     localStorage.setItem('last_invoice', JSON.stringify(invoice));
     try { const current = JSON.parse(localStorage.getItem('titan_invoices_v1') || '[]'); localStorage.setItem('titan_invoices_v1', JSON.stringify([...(Array.isArray(current) ? current : []), invoice])); } catch { localStorage.setItem('titan_invoices_v1', JSON.stringify([invoice])); }
     setSaved(true);
@@ -54,6 +60,8 @@ export default function AddInvoice() {
         <label>Invoice Number<input required value={values.invoiceNumber || ''} onChange={(e) => set('invoiceNumber', e.target.value)} placeholder="Enter Invoice Number" /></label>
         <label>Date<input required type="date" value={values.date || ''} onChange={(e) => set('date', e.target.value)} /></label>
         <label>Payment Terms<select required value={values.terms || ''} onChange={(e) => set('terms', e.target.value)}><option value="">Select Payment Terms</option><option>Credit</option><option>Cash</option></select></label>
+        <label>Payment Status<select required value={values.paymentStatus || 'Unpaid'} onChange={(e) => set('paymentStatus', e.target.value)}><option>Unpaid</option><option>Paid</option></select></label>
+        <label>Advance Payment<input type="number" min="0" value={values.advancePayment || ''} onChange={(e) => set('advancePayment', e.target.value)} placeholder="0" /></label>
       </div>
       <h2>Client Detail</h2>
       <div className="formgrid three">
@@ -63,10 +71,10 @@ export default function AddInvoice() {
       </div>
       <h2>Add Items</h2>
       <div className="tablewrap invoice-items"><table><thead><tr>{['Sr no.', 'Item Code', 'Product', 'QTY', 'Unit Price', 'Discount', 'Total', 'Actions'].map((h) => <th key={h}>{h}</th>)}</tr></thead><tbody>
-        {items.map((item, index) => <tr key={index}><td>{index + 1}</td><td><select value={item.code} onChange={(e) => chooseCode(index, e.target.value)}><option value="">Select Code</option>{products.filter((product) => product.itemCode).map((product) => <option key={product.itemCode} value={product.itemCode}>{product.itemCode}</option>)}</select></td><td><select value={item.product} onChange={(e) => chooseProduct(index, e.target.value)}><option value="">Select Product</option>{Array.from(new Set(products.map((product) => product.name))).map((name) => <option key={name}>{name}</option>)}</select><small className="invoice-item-price">Price: {item.price || '—'}</small></td><td><input type="number" min="1" value={item.qty} onChange={(e) => updateItem(index, 'qty', e.target.value)} /></td><td><input type="number" min="0" value={item.price} onChange={(e) => updateItem(index, 'price', e.target.value)} placeholder="4500" /></td><td><input type="number" min="0" value={item.discount} onChange={(e) => updateItem(index, 'discount', e.target.value)} placeholder="100" /></td><td>{itemTotal(item).toLocaleString()}</td><td><button type="button" className="line-delete" onClick={() => setItems((current) => current.length === 1 ? current : current.filter((_, i) => i !== index))}><Trash2 /></button></td></tr>)}
+        {items.map((item, index) => <tr key={index}><td>{index + 1}</td><td><input value={item.code} onChange={(e) => updateItem(index, 'code', e.target.value)} placeholder="33" /></td><td><select value={item.product} onChange={(e) => chooseProduct(index, e.target.value)}><option value="">Select Product</option>{Array.from(new Set(products.map((product) => product.name))).map((name) => <option key={name}>{name}</option>)}</select><small className="invoice-item-price">Price: {item.price || '—'}</small></td><td><input type="number" min="1" value={item.qty} onChange={(e) => updateItem(index, 'qty', e.target.value)} /></td><td><input type="number" min="0" value={item.price} onChange={(e) => updateItem(index, 'price', e.target.value)} placeholder="4500" /></td><td><input type="number" min="0" value={item.discount} onChange={(e) => updateItem(index, 'discount', e.target.value)} placeholder="0" /></td><td>{itemTotal(item).toLocaleString()}</td><td><button type="button" className="line-delete" onClick={() => setItems((current) => current.length === 1 ? current : current.filter((_, i) => i !== index))}><Trash2 /></button></td></tr>)}
         <tr><td colSpan={8}><button type="button" className="add-line" onClick={() => setItems((current) => [...current, blankItem()])}><Plus /> Add item row</button></td></tr>
       </tbody></table></div>
-      <div className="invoice-totals"><div><span>Net Total</span><b>{netTotal.toLocaleString()}</b></div><div><span>Discount</span><b>0</b></div><div><span>Grand Total</span><b>{netTotal.toLocaleString()}</b></div></div>
+      <div className="invoice-totals"><div><span>Net Total</span><b>{grossTotal.toLocaleString()}</b></div><div><span>Discount</span><b>{discountTotal.toLocaleString()}</b></div><div><span>Advance Payment</span><b>{Number(values.advancePayment || 0).toLocaleString()}</b></div><div><span>Grand Total</span><b>{netTotal.toLocaleString()}</b></div></div>
       <div className="invoice-actions"><button type="submit" className="btn orange">Save &amp; Print</button><button type="submit" className="btn cyan">Save</button></div>
       {saved && <p className="form-success">Invoice saved.</p>}
     </section>

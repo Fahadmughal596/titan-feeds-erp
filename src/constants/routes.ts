@@ -10,6 +10,7 @@ export const ROUTES = {
   // Inventory
   INVENTORY: '/inventory',
   INVENTORY_BATCHES: '/inventory/batches',
+  INVENTORY_BATCH_ADD: '/inventory/batches/add',
   INVENTORY_ADD: '/inventory/add',
   INVENTORY_ADD_MATERIAL: '/inventory/add-material',
   INVENTORY_IMPORT: '/inventory/bulk-import',
@@ -39,11 +40,17 @@ export const ROUTES = {
   INVOICE_ADD: '/invoices/add',
   INVOICE_IMPORT: '/invoices/bulk-import',
   PURCHASE_ORDERS: '/purchase-orders',
+  PURCHASE_ORDER_ADD: '/purchase-orders/add',
   CLIENTS_SUPPLIERS: '/clients-suppliers',
   CLIENT_ADD: '/clients-suppliers/clients/add',
   SUPPLIER_ADD: '/clients-suppliers/suppliers/add',
+  CLIENT_LEDGER: '/clients-suppliers/clients/ledger',
+  SUPPLIER_LEDGER: '/clients-suppliers/suppliers/ledger',
 
   // Finance
+  ACCOUNTS: '/accounts',
+  BANKS: '/accounts/banks',
+  PAYABLES: '/accounts/payables',
   EXPENSES: '/expenses',
   EXPENSE_ADD: '/expenses/add',
   EXPENSE_CATEGORIES: '/expense-categories',

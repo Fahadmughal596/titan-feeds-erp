@@ -41,8 +41,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     section: 'Finance',
     items: [
-      { label: 'Expenses', to: ROUTES.EXPENSES, icon: Wallet },
-      { label: 'Expense Categories', to: ROUTES.EXPENSE_CATEGORIES, icon: Tag },
+      { label: 'Accounts', to: ROUTES.ACCOUNTS, icon: Wallet },
       { label: 'Expense Allocations', to: ROUTES.EXPENSE_ALLOCATIONS, icon: SlidersHorizontal },
       // "Finance & Analytics" used to appear in both General and Finance,
       // pointing at two different URLs. It lives here only now.

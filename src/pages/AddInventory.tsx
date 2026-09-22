@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../constants';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { PlusCircle, Trash2, Upload } from 'lucide-react';
+import { Apple, PlusCircle, Trash2, Upload } from 'lucide-react';
 import { PageHeader } from '../components/ui';
 import { readFeedChoices, readRawMaterials } from '../utils/catalog';
 
@@ -452,9 +452,10 @@ export default function AddInventory() {
           <div className="nutrition-actions">
             <button
               type="button"
-              className="btn orange"
+              className="btn orange material-action"
               onClick={addNutritionMaterial}
             >
+              <Apple size={15} />
               Add Material
             </button>
 
