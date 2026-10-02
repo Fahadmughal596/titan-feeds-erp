@@ -25,19 +25,15 @@ const SEED: ProductRow[] = [
 const readRows = (): ProductRow[] => {
   try {
     const value = JSON.parse(localStorage.getItem('titan_products_v4') || 'null');
-    const dashboardRows = new Set(['inventory', 'products', 'invoices', 'dashboard']);
-    const validRows = Array.isArray(value) && value.length && value.every((row) => Array.isArray(row) && row.length >= 7 && !dashboardRows.has(String(row[0] || '').trim().toLowerCase()));
-    if (validRows) {
-      return value.map((r: string[]) => ({ brand: r[0] || '', product: r[1] || '', variant: r[2] || '', itemCode: r[3] || '', uom: r[4] || '', valueInKg: r[5] || '', description: r[6] || '-' }));
-    }
-    if (Array.isArray(value) && value.length) localStorage.removeItem('titan_products_v4');
-    if (Array.isArray(value) && value.length && value[0]?.product) return value;
+    const invalidModules = new Set(['inventory', 'products', 'invoices', 'dashboard']);
+    const validRows = Array.isArray(value) && value.length && value.every((row) => Array.isArray(row) && row.length >= 7 && !invalidModules.has(String(row[0] || '').trim().toLowerCase()));
+    if (validRows) return value.map((r: string[]) => ({ brand: r[0] || '', product: r[1] || '', variant: r[2] || '', itemCode: r[3] || '', uom: r[4] || '', valueInKg: r[5] || '', description: r[6] || '-' }));
   } catch { /* use the Figma seed */ }
   return SEED;
 };
 
 const exportRows = (rows: ProductRow[]) => {
-  const head = ['Item Code', 'Brand', 'Product', 'Variant', 'UOM', 'Value In KG', 'Description'];
+  const head = ['Item Code', 'Brand', 'Product', 'Variant', 'UOM', 'Packing Size', 'Description'];
   const csv = [head, ...rows.map((r) => [r.itemCode, r.brand, r.product, r.variant, r.uom, r.valueInKg, r.description])]
     .map((line) => line.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(','))
     .join('\n');
@@ -56,10 +52,11 @@ export default function ProductsPage() {
   const [filterOpen, setFilterOpen] = useState(false);
   const [brand, setBrand] = useState('All');
   const [page, setPage] = useState(1);
-  const [modal, setModal] = useState<'brand' | 'product' | 'variant' | 'catalogue' | null>(null);
-  const brands = useMemo(() => ['All', ...Array.from(new Set(rows.map((r) => r.brand)))], [rows]);
+  const [modal, setModal] = useState<'brand' | 'product' | 'variant' | null>(null);
+
+  const brands = useMemo(() => ['All', ...Array.from(new Set(rows.map((r) => r.brand).filter(Boolean)))], [rows]);
   const visible = rows.filter((row) => {
-    const matchesQuery = `${row.brand} ${row.product} ${row.variant}`.toLowerCase().includes(query.toLowerCase());
+    const matchesQuery = `${row.brand} ${row.product} ${row.variant} ${row.itemCode}`.toLowerCase().includes(query.toLowerCase());
     return matchesQuery && (brand === 'All' || row.brand === brand);
   });
 
@@ -68,32 +65,36 @@ export default function ProductsPage() {
       <PageHeader title="PRODUCTS" />
       <div className="toolbar product-toolbar">
         <button className="btn green" onClick={() => exportRows(visible)}><Download />Export</button>
-        <button className="btn orange" onClick={() => setFilterOpen((v) => !v)}><Filter />Filter</button>
-        <label className="search"><Search /><input value={query} onChange={(e) => { setQuery(e.target.value); setPage(1); }} placeholder="Search By Name" /></label>
+        <button className="btn orange" onClick={() => setFilterOpen((value) => !value)}><Filter />Filter</button>
+        <label className="search"><Search /><input value={query} onChange={(event) => { setQuery(event.target.value); setPage(1); }} placeholder="Search By Name" /></label>
         <div className="grow" />
         <button className="btn blue" onClick={() => setModal('brand')}><Plus />Add Brand</button>
         <button className="btn green" onClick={() => setModal('product')}><Plus />Add Product</button>
         <button className="btn cyan" onClick={() => setModal('variant')}><Plus />Add Variant</button>
-        <button className="btn blue" onClick={() => setModal('catalogue')}><Plus />Add Catalogue</button>
       </div>
-      {filterOpen && <div className="product-filter"><label>Brand <select value={brand} onChange={(e) => setBrand(e.target.value)}>{brands.map((b) => <option key={b}>{b}</option>)}</select></label></div>}
-      <div className="tablewrap products-table">
-        <table>
-          <thead><tr>{['Item Code', 'Brand', 'Product', 'Variant', 'UOM', 'Value In KG', 'Description', 'Actions'].map((h) => <th key={h}>{h}</th>)}</tr></thead>
-          <tbody>
-            {visible.map((row, i) => <tr key={`${row.itemCode}-${i}`}>
-              <td>{row.itemCode}</td><td>{row.brand}</td><td>{row.product}</td><td>{row.variant}</td><td>{row.uom}</td><td>{row.valueInKg}</td><td>{row.description}</td>
-              <td><button className="icon-button" aria-label="Open product details" onClick={() => navigate(ROUTES.PRODUCT_DETAILS)}><MoreVertical /></button></td>
-            </tr>)}
-            {!visible.length && <tr><td colSpan={8} className="empty-cell">No product records found.</td></tr>}
-          </tbody>
-        </table>
-      </div>
+      {filterOpen && <div className="product-filter"><label>Brand <select value={brand} onChange={(event) => setBrand(event.target.value)}>{brands.map((item) => <option key={item}>{item}</option>)}</select></label></div>}
+
+      <ProductTable title="Products" headers={['Item Code', 'Brand', 'Product', 'Variant', 'UOM', 'Packing Size', 'Description', 'Actions']}>
+        {visible.map((row, index) => <tr key={`${row.itemCode}-${index}`}><td>{row.itemCode}</td><td>{row.brand}</td><td>{row.product}</td><td>{row.variant}</td><td>{row.uom}</td><td>{row.valueInKg}</td><td>{row.description}</td><td><button className="icon-button" aria-label="Open product details" onClick={() => navigate(ROUTES.PRODUCT_DETAILS)}><MoreVertical /></button></td></tr>)}
+        {!visible.length && <tr><td colSpan={8} className="empty-cell">No product records found.</td></tr>}
+      </ProductTable>
+
       <div className="products-pagination">
-        <span>Page <select value={page} onChange={(e) => setPage(Number(e.target.value))}>{Array.from({ length: 10 }, (_, i) => <option key={i + 1}>{i + 1}</option>)}</select> of 10</span>
-        <div className="page-controls"><button onClick={() => setPage(1)} aria-label="First page">«</button><button onClick={() => setPage(Math.max(1, page - 1))} aria-label="Previous page">‹</button>{[1, 2, 3].map((p) => <button className={page === p ? 'current' : ''} key={p} onClick={() => setPage(p)}>{p}</button>)}<span>…</span><button className={page === 10 ? 'current' : ''} onClick={() => setPage(10)}>10</button><button onClick={() => setPage(Math.min(10, page + 1))} aria-label="Next page">›</button><button onClick={() => setPage(10)} aria-label="Last page">»</button></div>
+        <span>Page <select value={page} onChange={(event) => setPage(Number(event.target.value))}>{Array.from({ length: 10 }, (_, index) => <option key={index + 1}>{index + 1}</option>)}</select> of 10</span>
+        <div className="page-controls"><button onClick={() => setPage(1)}>«</button><button onClick={() => setPage(Math.max(1, page - 1))}>‹</button>{[1, 2, 3].map((item) => <button className={page === item ? 'current' : ''} key={item} onClick={() => setPage(item)}>{item}</button>)}<span>…</span><button className={page === 10 ? 'current' : ''} onClick={() => setPage(10)}>10</button><button onClick={() => setPage(Math.min(10, page + 1))}>›</button><button onClick={() => setPage(10)}>»</button></div>
       </div>
       {modal && <ProductModal kind={modal} onClose={() => setModal(null)} onSaved={() => { setModal(null); window.location.reload(); }} />}
     </>
+  );
+}
+
+function ProductTable({ title, headers, children }: { title: string; headers: string[]; children: React.ReactNode }) {
+  return (
+    <section className="product-data-section">
+      <h2>{title}</h2>
+      <div className="tablewrap products-table">
+        <table><thead><tr>{headers.map((header) => <th key={header}>{header}</th>)}</tr></thead><tbody>{children}</tbody></table>
+      </div>
+    </section>
   );
 }

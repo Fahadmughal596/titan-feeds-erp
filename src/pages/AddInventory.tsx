@@ -31,7 +31,6 @@ export default function AddInventory() {
   const nutritionPanel = useRef<HTMLElement>(null);
   const pdfInput = useRef<HTMLInputElement>(null);
 
-  const [tab, setTab] = useState('Batches');
   const [showNutrition, setShowNutrition] = useState(false);
   const [referenceOpen, setReferenceOpen] = useState(false);
   const [reference, setReference] = useState('');
@@ -153,72 +152,9 @@ export default function AddInventory() {
     setShowNutrition(false);
   };
 
-  /* Inventory tab content */
-  if (tab === 'Inventory') {
-    return (
-      <>
-        <PageHeader title="ADD INVENTORY" />
-
-        <div className="tabs">
-          <button
-            type="button"
-            className="tab active"
-            onClick={() => setTab('Inventory')}
-          >
-            Inventory
-          </button>
-          <button
-            type="button"
-            className="tab"
-            onClick={() => setTab('Batches')}
-          >
-            Batches
-          </button>
-        </div>
-
-        <h3 className="sectiontitle">Inventory</h3>
-
-        <div className="tablewrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Sr no.</th>
-                <th>Material</th>
-                <th>UOM</th>
-                <th>Available QTY</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>1</td>
-                <td>Soyabean Meal</td>
-                <td>KG</td>
-                <td>100Kg</td>
-                <td>—</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </>
-    );
-  }
   return (
     <>
       <PageHeader title="ADD INVENTORY" />
-
-      <div className="tabs">
-        {['Inventory', 'Batches'].map((value) => (
-          <button
-            type="button"
-            key={value}
-            className={tab === value ? 'tab active' : 'tab'}
-            onClick={() => setTab(value)}
-          >
-            {value}
-          </button>
-        ))}
-      </div>
 
       <div className="toolbar inventory-add-toolbar"><div className="grow" /><button type="button" className="btn gray" onClick={() => navigate(ROUTES.INVENTORY_IMPORT)}><Upload />Import File</button></div>
 
@@ -244,6 +180,21 @@ export default function AddInventory() {
         <label>
           <span>Batch Number</span>
           <input placeholder="Enter Batch Number" />
+        </label>
+
+        <label>
+          <span>PO Number</span>
+          <input placeholder="Enter PO Number" />
+        </label>
+
+        <label>
+          <span>Manufacturing Date</span>
+          <input type="date" />
+        </label>
+
+        <label>
+          <span>Expiry Date</span>
+          <input type="date" />
         </label>
 
         <label>
@@ -350,6 +301,15 @@ export default function AddInventory() {
                 </td>
 
                 <td className="table-actions">
+                  <button
+                    type="button"
+                    className="icon-button nutrition-action"
+                    aria-label="Open nutrition table"
+                    title="Open nutrition table"
+                    onClick={() => navigate(ROUTES.INVENTORY_ADD_MATERIAL)}
+                  >
+                    <Apple size={15} />
+                  </button>
                   <button
                     type="button"
                     className="table-action delete"
