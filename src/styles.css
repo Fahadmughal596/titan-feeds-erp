@@ -645,6 +645,7 @@ header { height: 48px; padding: 3px 28px; align-items: center; }
 .table-actions .icon-button { width: 25px; height: 25px; padding: 2px; display: inline-grid; place-items: center; }
 .table-actions .icon-button svg { width: 16px; height: 16px; stroke-width: 2.2; }
 .nutrition-action { color: #111; }
+.nutrition-action:disabled { color: #9aa0a5; opacity: .65; cursor: not-allowed; }
 .delete-action { color: #ef3340; }
 @media(max-width:900px){.pagehead{padding-right:0}.headright{transform:translateY(12px)}}
 

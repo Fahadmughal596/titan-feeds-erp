@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../constants';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Apple, PlusCircle, Trash2, Upload } from 'lucide-react';
+import { Apple, Pencil, PlusCircle, Trash2 } from 'lucide-react';
 import { PageHeader } from '../components/ui';
-import { readFeedChoices, readRawMaterials } from '../utils/catalog';
+import { readFeedChoices } from '../utils/catalog';
 
 type Item = {
   product: string;
@@ -32,18 +32,13 @@ export default function AddInventory() {
   const pdfInput = useRef<HTMLInputElement>(null);
 
   const [showNutrition, setShowNutrition] = useState(false);
-  const [referenceOpen, setReferenceOpen] = useState(false);
-  const [reference, setReference] = useState('');
-  const [references, setReferences] = useState<string[]>([]);
   const [reportName, setReportName] = useState('');
+  const [materialType, setMaterialType] = useState('');
+  const [supplier, setSupplier] = useState('');
   const productChoices = useMemo(() => {
     const choices = readFeedChoices();
     return choices.length ? choices : [{ name: 'Soyabean Meal' }];
   }, []);
-  const materialChoices = useMemo(() => {
-    const choices = readRawMaterials();
-    return choices.length ? choices : productChoices;
-  }, [productChoices]);
 
   const [items, setItems] = useState<Item[]>(
     Array.from({ length: 4 }, () => ({
@@ -116,15 +111,6 @@ export default function AddInventory() {
     setItems((old) => old.filter((_, itemIndex) => itemIndex !== index));
   };
 
-  const addReference = () => {
-    const value = reference.trim();
-
-    if (!value) return;
-
-    setReferences((old) => [...old, value]);
-    setReference('');
-  };
-
   const updateNutrition = (key: string, value: string) => {
     setNutrition((old) => ({
       ...old,
@@ -156,25 +142,19 @@ export default function AddInventory() {
     <>
       <PageHeader title="ADD INVENTORY" />
 
-      <div className="toolbar inventory-add-toolbar"><div className="grow" /><button type="button" className="btn gray" onClick={() => navigate(ROUTES.INVENTORY_IMPORT)}><Upload />Import File</button></div>
-
       <div className="formgrid two">
         <label>
-          <span>Select Type Of Material</span>
-          <select>
-            <option>Select Material</option>
+          <span>Type Of Raw Material</span>
+          <select value={materialType} onChange={(event) => setMaterialType(event.target.value)}>
+            <option value="">Select Material</option>
             <option>Raw Material</option>
             <option>Finished Goods</option>
           </select>
         </label>
 
         <label>
-          <span>Select PO</span>
-          <select>
-            <option>Select PO</option>
-            <option>PO#001</option>
-            <option>PO#002</option>
-          </select>
+          <span>PO</span>
+          <input placeholder="Enter PO Number" />
         </label>
 
         <label>
@@ -183,75 +163,31 @@ export default function AddInventory() {
         </label>
 
         <label>
-          <span>PO Number</span>
-          <input placeholder="Enter PO Number" />
-        </label>
-
-        <label>
-          <span>Manufacturing Date</span>
-          <input type="date" />
-        </label>
-
-        <label>
-          <span>Expiry Date</span>
-          <input type="date" />
-        </label>
-
-        <label>
           <span>Name Of Batch</span>
+          <input placeholder="Enter Name Of Batch" />
+        </label>
 
-          <div className="inline">
-            <input placeholder="Enter Name Of Batch" />
-
-            <button
-              type="button"
-              className="btn cyan"
-              onClick={() => setReferenceOpen((old) => !old)}
-            >
-              Add References
-            </button>
-          </div>
+        <label>
+          <span>Supplier</span>
+          <select value={supplier} onChange={(event) => setSupplier(event.target.value)}>
+            <option value="">Select Supplier</option>
+            <option>All Supplier</option>
+            <option>Supplier 1</option>
+            <option>Supplier 2</option>
+          </select>
         </label>
       </div>
 
-      {referenceOpen && (
-        <div className="reference-panel">
-          <strong>Add References</strong>
-
-          <div className="inline">
-            <input
-              value={reference}
-              onChange={(event) => setReference(event.target.value)}
-              placeholder="Enter reference"
-            />
-
-            <button
-              type="button"
-              className="btn cyan"
-              onClick={addReference}
-            >
-              Add Reference
-            </button>
-          </div>
-
-          {references.map((value, index) => (
-            <div className="reference-item" key={`${value}-${index}`}>
-              {index + 1}. {value}
-            </div>
-          ))}
-        </div>
-      )}
-
-      <h3 className="sectiontitle">Add Items</h3>
+      <h3 className="sectiontitle">Item Detail</h3>
 
       <div className="tablewrap">
         <table>
           <thead>
             <tr>
-              <th>Sr no.</th>
+              <th>Sr No</th>
               <th>Product</th>
               <th>QTY</th>
-              <th>Purchase Rate</th>
+              <th>Purchase</th>
               <th>Total</th>
               <th>Actions</th>
             </tr>
@@ -264,6 +200,7 @@ export default function AddInventory() {
 
                 <td>
                   <select
+                    id={`inventory-product-${index}`}
                     value={item.product}
                     onChange={(event) => updateItem(index, 'product', event.target.value)}
                   >
@@ -303,19 +240,31 @@ export default function AddInventory() {
                 <td className="table-actions">
                   <button
                     type="button"
-                    className="icon-button nutrition-action"
-                    aria-label="Open nutrition table"
-                    title="Open nutrition table"
-                    onClick={() => navigate(ROUTES.INVENTORY_ADD_MATERIAL)}
-                  >
-                    <Apple size={15} />
-                  </button>
-                  <button
-                    type="button"
                     className="table-action delete"
+                    aria-label="Delete item"
+                    title="Delete item"
                     onClick={() => removeItem(index)}
                   >
                     <Trash2 size={15} />
+                  </button>
+                  <button
+                    type="button"
+                    className="icon-button edit-action"
+                    aria-label="Edit item"
+                    title="Edit item"
+                    onClick={() => document.getElementById(`inventory-product-${index}`)?.focus()}
+                  >
+                    <Pencil size={15} />
+                  </button>
+                  <button
+                    type="button"
+                    className="icon-button nutrition-action"
+                    aria-label="Open nutrition table"
+                    title={materialType === 'Raw Material' ? 'Open nutrition table' : 'Select Raw Material to enable nutrition'}
+                    disabled={materialType !== 'Raw Material'}
+                    onClick={() => navigate(ROUTES.INVENTORY_ADD_MATERIAL)}
+                  >
+                    <Apple size={15} />
                   </button>
                 </td>
               </tr>
