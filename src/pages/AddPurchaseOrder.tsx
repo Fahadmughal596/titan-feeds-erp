@@ -23,25 +23,11 @@ export default function AddPurchaseOrder() {
   const [saved, setSaved] = useState(false);
   const products = useMemo(() => readProducts().length ? readProducts() : [{ name: 'Growth Max', itemCode: '33' }, { name: 'Maintaince Pro', itemCode: '3320' }], []);
   const suppliers = useMemo(readSuppliers, []);
-  const existingOrders = useMemo(() => { try { const value = JSON.parse(localStorage.getItem('titan_purchase_orders_v1') || '[]'); return Array.isArray(value) ? value : []; } catch { return []; } }, []);
-  const poNumbers = useMemo(() => Array.from(new Set(['PO-001', 'PO-002', ...existingOrders.map((row) => String(row?.number || '')).filter(Boolean)])), [existingOrders]);
   const set = (key: string, value: string) => setValues((current) => ({ ...current, [key]: value }));
   const updateItem = (index: number, field: keyof Item, value: string) => setItems((current) => current.map((item, i) => i === index ? { ...item, [field]: value } : item));
   const chooseProduct = (index: number, name: string) => { const match = products.find((product) => product.name === name); setItems((current) => current.map((item, i) => i === index ? { ...item, product: name, code: match?.itemCode || '', price: item.price || '' } : item)); };
   const chooseCode = (index: number, code: string) => { const match = products.find((product) => product.itemCode === code); setItems((current) => current.map((item, i) => i === index ? { ...item, code, product: match?.name || item.product } : item)); };
   const total = items.reduce((sum, item) => sum + Number(item.qty || 0) * Number(item.price || 0), 0);
-
-  const selectPo = (number: string) => {
-    set('poNumber', number);
-    try {
-      const rows = JSON.parse(localStorage.getItem('titan_purchase_orders_v1') || '[]');
-      const match = Array.isArray(rows) ? rows.find((row) => row?.number === number) : null;
-      if (match) {
-        setValues((current) => ({ ...current, supplier: String(match.supplier || ''), vendorName: String(match.vendorName || match.supplier || ''), date: String(match.date || ''), supplyDate: String(match.supplyDate || ''), paymentType: String(match.paymentType || match.terms || ''), paymentStatus: String(match.status || 'Unpaid') }));
-        if (Array.isArray(match.items) && match.items.length) setItems(match.items);
-      }
-    } catch { /* keep the empty form */ }
-  };
 
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -61,7 +47,7 @@ export default function AddPurchaseOrder() {
     <section className="invoice-form-card">
       <h2>Purchase Order Details</h2>
       <div className="formgrid three">
-        <label>PO Number<select required value={values.poNumber || ''} onChange={(e) => selectPo(e.target.value)}><option value="">Select PO number</option>{poNumbers.map((number) => <option key={number}>{number}</option>)}</select></label>
+        <label>PO Number<input required value={values.poNumber || ''} onChange={(e) => set('poNumber', e.target.value)} placeholder="Enter PO Number" /></label>
         <label>Date<input required type="date" value={values.date || ''} onChange={(e) => set('date', e.target.value)} /></label>
         <label>Supply Date<input required type="date" value={values.supplyDate || ''} onChange={(e) => set('supplyDate', e.target.value)} /></label>
         <label>Payment Type<select required value={values.paymentType || ''} onChange={(e) => set('paymentType', e.target.value)}><option value="">Select payment type</option><option>Cash</option><option>Credit</option><option>Online</option></select></label>

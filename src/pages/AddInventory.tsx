@@ -261,6 +261,7 @@ export default function AddInventory() {
                     className="icon-button nutrition-action"
                     aria-label="Open nutrition table"
                     title="Open nutrition table"
+                    disabled={materialType !== 'Raw Material'}
                     onClick={() => navigate(ROUTES.INVENTORY_ADD_MATERIAL)}
                   >
                     <Apple size={15} />
